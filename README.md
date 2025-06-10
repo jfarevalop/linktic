@@ -1,1 +1,1 @@
-# linktic
+Ejemplo productivo de despliegue IaC Terraform - Linktic
