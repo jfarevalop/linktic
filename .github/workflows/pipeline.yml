@@ -13,7 +13,6 @@ on:
 
   workflow_dispatch:
 
-
 jobs:
 
   Terraform build:
@@ -26,11 +25,7 @@ jobs:
       - name: Checkout code
       - uses: actions/checkout@v4
       
-      - name: Configure cloud credentials
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        run: echo "Cloud credentials configured"
+
 
 
       - name: Run a one-line script
