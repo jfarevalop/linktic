@@ -1,28 +1,17 @@
-# This is a basic workflow to help you get started with Actions
-
-name: Despliegue_Terraform
-
+name: Deploy Infra with Terraform
 
 on:
-
   push:
-    branches: [ "main" ]
+    branches: [main]
   pull_request:
-    branches: [ "main" ]
-
-
-  workflow_dispatch:
-
+    branches: [main]
 
 env:
   TF_VERSION: 1.6.0
   TF_WORKING_DIR: ./infra
-  
-  
-jobs:
 
-  Terraform_build:
-  
+jobs:
+  terraform:
     name: Terraform CI/CD Pipeline
     runs-on: ubuntu-latest
 
@@ -30,37 +19,56 @@ jobs:
       run:
         working-directory: ${{ env.TF_WORKING_DIR }}
 
-    steps: 
-      - uses: actions/checkout@v4
-      
-      - name: Configure cloud credentials
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        run: echo "Cloud credentials configured"
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
 
-      - name: Set up Terraform
-        uses: hashicorp/setup-terraform@v3
-        with:
-          terraform_version: ${{ env.TF_VERSION }}
-          
-       
-        
-      - name: Terraform Init
-        run: terraform init -input=false
-        
-      - name: Terraform Validate
-        run: terraform validate
-        
-      - name: Terraform Plan
-        id: plan
-        run: terraform plan -no-color -out=tfplan
+    # Secret management
+    - name: Configure cloud credentials
+      env:
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      run: echo "Cloud credentials configured"
 
-      - name: Run a one-line script
-        run: echo Hello, world!
+    # Terraform Setup
+    - name: Set up Terraform
+      uses: hashicorp/setup-terraform@v3
+      with:
+        terraform_version: ${{ env.TF_VERSION }}
 
- 
-      - name: Run a multi-line script
-        run: |
-          echo Add other actions to build,
-          echo test, and deploy your project.
+    # Format Check
+    - name: Terraform Format Check
+      run: terraform fmt -check -recursive
+
+    # Init
+    - name: Terraform Init
+      run: terraform init -input=false
+
+    # Validation
+    - name: Terraform Validate
+      run: terraform validate
+
+    # Linting (opcional)
+    - name: TFLint
+      uses: terraform-linters/setup-tflint@v1
+    - run: tflint --init && tflint
+
+    # Plan
+    - name: Terraform Plan
+      id: plan
+      run: terraform plan -no-color -out=tfplan
+
+    # Apply
+    - name: Terraform Apply
+      if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+      run: terraform apply -input=false tfplan
+
+    # Report Status
+    - name: Notify Deployment Status
+      if: always()
+      run: |
+        if [ ${{ job.status }} == 'success' ]; then
+          echo "✅ Terraform deployment succeeded"
+        else
+          echo "❌ Terraform deployment failed"
+        fi
