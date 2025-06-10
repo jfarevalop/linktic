@@ -22,7 +22,7 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v3
 
-    # Secret management
+ 
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v3
       with:
@@ -30,40 +30,33 @@ jobs:
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws-region: us-east-1
 
-    # Terraform Setup
+  
     - name: Set up Terraform
       uses: hashicorp/setup-terraform@v3
-
-
-    # Format Check
+    
     - name: Terraform Format Check
       run: terraform fmt -check -recursive
-
-    # Init
+ 
     - name: Terraform Init
       run: terraform init -input=false
 
-    # Validation
     - name: Terraform Validate
       run: terraform validate
-
-
-    # Plan
+   
     - name: Terraform Plan
       id: plan
-      run: terraform plan -no-color -out=tfplan
-
-    # Apply
+      run: terraform plan -out=tfplan
+   
     - name: Terraform Apply
       if: github.ref == 'refs/heads/main' && github.event_name == 'push'
       run: terraform apply -input=false tfplan
 
-    # Report Status
+    
     - name: Notify Deployment Status
       if: always()
       run: |
         if [ ${{ job.status }} == 'success' ]; then
-          echo "✅ Terraform deployment succeeded"
+          echo "Ejecutado exitosamente"
         else
-          echo "❌ Terraform deployment failed"
+          echo "Fallo al ejecutar"
         fi
