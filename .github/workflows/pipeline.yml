@@ -48,6 +48,10 @@ jobs:
         
       - name: Terraform Validate
         run: terraform validate
+        
+      - name: Terraform Plan
+        id: plan
+        run: terraform plan -no-color -out=tfplan
 
       - name: Run a one-line script
         run: echo Hello, world!
