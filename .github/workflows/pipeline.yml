@@ -15,7 +15,7 @@ on:
 
 jobs:
 
-  Terraform build:
+  Terraform_build:
   
     name: Terraform CI/CD Pipeline
     runs-on: ubuntu-latest
