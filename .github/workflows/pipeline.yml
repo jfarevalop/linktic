@@ -40,6 +40,16 @@ jobs:
         uses: hashicorp/setup-terraform@v3
         with:
           terraform_version: ${{ env.TF_VERSION }}
+          
+      - name: Terraform Format Check
+        run: terraform fmt -check -recursive
+        
+        
+      - name: Terraform Init
+        run: terraform init -input=false
+        
+      - name: Terraform Validate
+        run: terraform validate
 
       - name: Run a one-line script
         run: echo Hello, world!
