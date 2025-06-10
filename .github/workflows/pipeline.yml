@@ -7,7 +7,7 @@ on:
     branches: [main]
 
 env:
-  DIRECTORIO: ./infra
+  TF_WORKING_DIR: ./infra
 
 jobs:
   terraform:
@@ -16,7 +16,7 @@ jobs:
 
     defaults:
       run:
-        working-directory: ${{ env.DIRECTORIO }}
+        working-directory: ${{ env.TF_WORKING_DIR }}
 
     steps:
     - name: Checkout code
@@ -41,7 +41,7 @@ jobs:
 
     # Init
     - name: Terraform Init
-      run: terraform init
+      run: terraform init -input=false
 
     # Validation
     - name: Terraform Validate
@@ -51,7 +51,7 @@ jobs:
     # Plan
     - name: Terraform Plan
       id: plan
-      run: terraform plan
+      run: terraform plan -no-color -out=tfplan
 
     # Apply
     - name: Terraform Apply
@@ -63,7 +63,7 @@ jobs:
       if: always()
       run: |
         if [ ${{ job.status }} == 'success' ]; then
-          echo "Despliegue correcto"
+          echo "✅ Terraform deployment succeeded"
         else
-          echo "Falla al desplegar"
+          echo "❌ Terraform deployment failed"
         fi
