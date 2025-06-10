@@ -7,7 +7,7 @@ on:
     branches: [main]
 
 env:
-  TF_WORKING_DIR: ./infra
+  DIRECTORIO: ./infra
 
 jobs:
   terraform:
@@ -16,7 +16,7 @@ jobs:
 
     defaults:
       run:
-        working-directory: ${{ env.TF_WORKING_DIR }}
+        working-directory: ${{ env.DIRECTORIO }}
 
     steps:
     - name: Checkout code
@@ -28,7 +28,7 @@ jobs:
       with:
         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        aws-region: us-east-1
+ 
 
     # Terraform Setup
     - name: Set up Terraform
@@ -41,7 +41,7 @@ jobs:
 
     # Init
     - name: Terraform Init
-      run: terraform init -input=false
+      run: terraform init
 
     # Validation
     - name: Terraform Validate
@@ -51,7 +51,7 @@ jobs:
     # Plan
     - name: Terraform Plan
       id: plan
-      run: terraform plan -no-color -out=tfplan
+      run: terraform plan
 
     # Apply
     - name: Terraform Apply
@@ -63,7 +63,7 @@ jobs:
       if: always()
       run: |
         if [ ${{ job.status }} == 'success' ]; then
-          echo "✅ Terraform deployment succeeded"
+          echo "Despliegue correcto"
         else
-          echo "❌ Terraform deployment failed"
+          echo "Falla al desplegar"
         fi
